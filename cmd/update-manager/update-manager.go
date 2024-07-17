@@ -5,7 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
-	"time"
+	"sync"
 
 	"github.com/t-l3/update-manager/internal/config"
 	"github.com/t-l3/update-manager/internal/manager"
@@ -26,10 +26,12 @@ func main() {
 		log.Fatal("IO Error encountered while reading config file", err)
 	}
 
-	appConfig := config.AppConfig{}
+	appConfig := config.AppConfig{
+		TmpDownloadLocation: "/tmp/update-manager-download",
+	}
 	err = yaml.Unmarshal(configFileBytes, &appConfig)
 	if err != nil {
-		log.Fatal("Cannot parse config yaml", err)
+		log.Fatal("Cannot parse config file.\n", err)
 	}
 
 	err = os.MkdirAll(appConfig.TmpDownloadLocation, 0775)
@@ -39,11 +41,19 @@ func main() {
 
 	log.Printf("  === Starting app checks ===  ")
 
+	var wg sync.WaitGroup
+
 	for _, app := range appConfig.Apps {
-		go manager.UpdateApplication(app)
+		wg.Add(1)
+		go updateApplication(&app, &wg)
 	}
 
-	for {
-		time.Sleep(30 * time.Second)
-	}
+	wg.Wait()
+
+	os.RemoveAll(appConfig.TmpDownloadLocation)
+}
+
+func updateApplication(app* config.App, wg* sync.WaitGroup) {
+	manager.UpdateApplication(app)
+	wg.Done()
 }
