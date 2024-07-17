@@ -6,10 +6,12 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/t-l3/update-manager/internal/config"
 	"github.com/t-l3/update-manager/internal/manager"
 
+	"fyne.io/systray"
 	"gopkg.in/yaml.v2"
 )
 
@@ -25,6 +27,7 @@ func main() {
 	if err != nil {
 		log.Fatal("IO Error encountered while reading config file", err)
 	}
+	configFileHandle.Close()
 
 	appConfig := config.AppConfig{
 		TmpDownloadLocation: "/tmp/update-manager-download",
@@ -48,7 +51,11 @@ func main() {
 		go updateApplication(&app, &wg)
 	}
 
+	startSystray, _ := systray.RunWithExternalLoop(systrayOnReady, func() {})
+	startSystray()
+
 	wg.Wait()
+	time.Sleep(5 * time.Second)
 
 	os.RemoveAll(appConfig.TmpDownloadLocation)
 }
@@ -56,4 +63,19 @@ func main() {
 func updateApplication(app* config.App, wg* sync.WaitGroup) {
 	manager.UpdateApplication(app)
 	wg.Done()
+}
+
+func systrayOnReady() {
+	updateIcon, _ := os.Open("icons/update-dark.png")
+	updateIconBytes, _ := io.ReadAll(updateIcon)
+	systray.SetIcon(updateIconBytes)
+	updateIcon.Close()
+
+	systray.SetTitle("update-manager")
+	systray.SetTooltip("update-manager")
+  quitButton := systray.AddMenuItem("Quit", "Quit update-manager")
+	go func() {
+		<-quitButton.ClickedCh
+		systray.Quit()
+	}()
 }

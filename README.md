@@ -17,6 +17,7 @@ tmp-download-location: [string] File path to use as a temporary download locatio
 
 apps:
   - name: [string] A display name for the app, for use in logs.
+    icon: [string] Path to an image file to use as icon for this app in desktop notifications
     download-url: [string] URL to download the latest release of the application
     install-dir:
       path: [string] File path to install app to locally
@@ -25,4 +26,6 @@ apps:
     versioning-checks:
       installed: [string] An executable command to check the locally installed version (i.e jq '.version' .discord/resources/build_info.json)
       latest: [string] An executable command to check the remotely latest available version (i.e curl -s 'https://discord.com/api/download?platform=linux&format=tar.gz' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n 1;)
+    pre-install-script: [string] Script to execute in bash before install
+    post-install-script: [string] Script to execute in bash after install
 ```

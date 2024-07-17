@@ -7,6 +7,7 @@ type AppConfig struct {
 
 type App struct {
 	Name              string           `yaml:"name"`
+	Icon              string           `yaml:"icon"`
 	DownloadUrl       string           `yaml:"download-url"`
 	InstallDir        InstallDir       `yaml:"install-dir"`
 	VersioningChecks  VersioningChecks `yaml:"versioning-checks"`
