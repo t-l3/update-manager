@@ -6,6 +6,8 @@ For example, I use it for Discord, VS Code and Google Chrome which aren't availa
 
 update-manager will check the locally installed version against the remote latest available version, and initiate a download if there is a difference.
 
+![demo-img](demo.png)
+
 ## Config
 
 `update-manager --config /path/to/config.yaml`
