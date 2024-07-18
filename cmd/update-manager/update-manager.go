@@ -48,7 +48,7 @@ func main() {
 
 	for _, app := range appConfig.Apps {
 		wg.Add(1)
-		go updateApplication(&app, &wg)
+		go updateApplication(&app, &appConfig.TmpDownloadLocation, &wg)
 	}
 
 	startSystray, _ := systray.RunWithExternalLoop(systrayOnReady, func() {})
@@ -60,8 +60,8 @@ func main() {
 	os.RemoveAll(appConfig.TmpDownloadLocation)
 }
 
-func updateApplication(app* config.App, wg* sync.WaitGroup) {
-	manager.UpdateApplication(app)
+func updateApplication(app *config.App, tmpPath *string, wg *sync.WaitGroup) {
+	manager.UpdateApplication(app, tmpPath)
 	wg.Done()
 }
 
@@ -73,7 +73,7 @@ func systrayOnReady() {
 
 	systray.SetTitle("update-manager")
 	systray.SetTooltip("update-manager")
-  quitButton := systray.AddMenuItem("Quit", "Quit update-manager")
+	quitButton := systray.AddMenuItem("Quit", "Quit update-manager")
 	go func() {
 		<-quitButton.ClickedCh
 		systray.Quit()
