@@ -42,19 +42,31 @@ func UpdateApplication(app *config.App, tmpPath *string) {
 		}
 	}
 
-	logger.Printf("Downloading new version of %s from %s\n", app.Name, app.DownloadUrl)
-	res, err := http.Get(app.DownloadUrl)
-	if err != nil {
-		log.Printf("Failed to download %s", app.Name)
-		return
-	}
+	downloadPath := fmt.Sprintf("%s/%s", *tmpPath, app.Name)
 
-	download, _ := io.ReadAll(res.Body)
-	err = os.WriteFile(fmt.Sprintf("%s/%s", *tmpPath, app.Name), download, 0600)
+	logger.Printf("Downloading new version of %s from %s\n", app.Name, app.DownloadUrl)
+	_, err = os.Open(downloadPath)
+
 	if err != nil {
-		log.Printf("Could not write %s update to temp download directory (%s)", app.Name, app.InstallDir.Path)
+		res, err := http.Get(app.DownloadUrl)
+
+		if err != nil {
+			logger.Printf("Failed to download %s", app.Name)
+			return
+		}
+
+		download, _ := io.ReadAll(res.Body)
+		err = os.WriteFile(downloadPath, download, 0600)
+
+		if err != nil {
+			logger.Printf("Could not write %s update to temp download directory (%s)", app.Name, app.InstallDir.Path)
+		}
+	} else {
+		logger.Printf("Download already present, reusing existing download for %s", app.Name) // TODO Add file size check to confirm presence of data
 	}
 
 	logger.Printf("Removing existing install (%s)\n", app.InstallDir.Path)
 	os.RemoveAll(app.InstallDir.Path)
+
+	Extract(downloadPath, app.InstallDir.Path) // TODO extract to temporary location, then move
 }
