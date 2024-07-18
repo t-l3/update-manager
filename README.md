@@ -12,7 +12,7 @@ update-manager will check the locally installed version against the remote lates
 
 `update-manager --config /path/to/config.yaml`
 
-### /etc/config-manager/config.yaml (Default)
+### /etc/update-manager/config.yaml (Default)
 
 ```yaml
 tmp-download-location: [string] File path to use as a temporary download location.
