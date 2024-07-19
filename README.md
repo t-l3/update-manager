@@ -6,19 +6,26 @@ For example, I use it for Discord, VS Code and Google Chrome which aren't availa
 
 update-manager will check the locally installed version against the remote latest available version, and initiate a download if there is a difference.
 
-![demo-img](demo.png)
+![demo-img](docs/demo.png)
 
 ## Config
 
+Specify path to config file as an argument:
+
 `update-manager --config /path/to/config.yaml`
 
-### /etc/update-manager/config.yaml (Default)
+Or otherwise place a file in the default config location /etc/update-manager/config.yaml
+
+See [example config](docs/config.yaml)
+
+### config.yaml
 
 ```yaml
-tmp-download-location: [string] File path to use as a temporary download location.
+tmp-download-location: [string] File path to use as a temporary download location
+systray-icon: [string] File path to image to use as systray icon
 
 apps:
-  - name: [string] A display name for the app, for use in logs.
+  - name: [string] A display name for the app, for use in logs
     icon: [string] Path to an image file to use as icon for this app in desktop notifications
     download-url: [string] URL to download the latest release of the application
     install-dir:

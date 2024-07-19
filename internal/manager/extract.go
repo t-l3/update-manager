@@ -11,14 +11,16 @@ import (
 	"github.com/h2non/filetype"
 )
 
-func Extract(in string, out string) {
+func (m *Manager) Extract(in string, out string) {
 	kind := DetectFiletype(in)
 
-	switch kind {
+	switch kind { // TODO add zip, 7z, rpm and deb extraction
 	case "application/gzip":
-		ExtractGzip(in, out)
+		m.ExtractGzip(in, out)
 	case "application/x-tar":
-		ExtractTar(in, out)
+		m.ExtractTar(in, out)
+	default:
+		m.logger.Println("Finished extracting")
 	}
 }
 
@@ -28,16 +30,19 @@ func DetectFiletype(path string) string {
 	return kind.MIME.Value
 }
 
-func ExtractGzip(in string, out string) {
+func (m *Manager) ExtractGzip(in string, out string) {
+	m.logger.Println("Extracting gzip...")
 	file, _ := os.Open(in)
 	gzReader, _ := gzip.NewReader(file)
 	bytes, _ := io.ReadAll(gzReader)
 	tmpFile := fmt.Sprintf("%s.tmp", in)
 	os.WriteFile(tmpFile, bytes, 0700)
-	Extract(tmpFile, out)
+	m.Extract(tmpFile, out)
+	os.RemoveAll(tmpFile)
 }
 
-func ExtractTar(in string, out string) {
+func (m *Manager) ExtractTar(in string, out string) {
+	m.logger.Println("Extracting tar...")
 	file, _ := os.Open(in)
 	tarReader := tar.NewReader(file)
 
@@ -83,5 +88,6 @@ func ExtractTar(in string, out string) {
 	bytes, _ := io.ReadAll(tarReader)
 	tmpFile := fmt.Sprintf("%s.tmp", in)
 	os.WriteFile(tmpFile, bytes, 0700)
-	Extract(tmpFile, out)
+	m.Extract(tmpFile, out)
+	os.RemoveAll(tmpFile)
 }

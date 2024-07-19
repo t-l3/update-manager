@@ -1,0 +1,23 @@
+# Example update-manager config
+
+apps:
+  - name: 'Discord'
+    icon: '/etc/update-manager/icons/discord.png'
+    download-url: https://discord.com/api/download?platform=linux&format=tar.gz
+    install-dir:
+      path: /opt/discord
+      owner: 1000:1000
+      mode: 700
+    versioning-checks:
+      installed: |-
+        jq -r '.version' /opt/discord/resources/build_info.json
+      latest: |-
+        curl -s 'https://discord.com/api/download?platform=linux&format=tar.gz' | \
+        grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | \
+        head -n 1
+    post-install-script: |-
+      mv /opt/discord/Discord /opt/discord/tmp;
+      mv /opt/discord/tmp/* /opt/discord/;
+      rm -rf /opt/discord/tmp/;
+      chmod +x /opt/discord/Discord
+      sed -r 's/\/usr\/share\/discord/\/opt\/discord/g' /opt/discord/discord.desktop > /usr/share/applications/discord.desktop

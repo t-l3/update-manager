@@ -1,48 +1,29 @@
 package main
 
 import (
-	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"sync"
-	"time"
 
+	"github.com/0xAX/notificator"
 	"github.com/t-l3/update-manager/internal/config"
 	"github.com/t-l3/update-manager/internal/manager"
 
 	"fyne.io/systray"
-	"gopkg.in/yaml.v2"
 )
 
 func main() {
-	configFile := flag.String("config", "/etc/update-manager/config.yaml", "relative or absolute file path to update-manager's config")
+	logger := log.New(os.Stdout, "app-manager-main  ", log.Ldate|log.Ltime|log.Lmsgprefix)
+	appConfig := config.LoadConfig()
 
-	configFileHandle, err := os.Open(*configFile)
+	err := os.MkdirAll(appConfig.TmpDownloadLocation, 0775)
 	if err != nil {
-		log.Fatal("Error encountered while opening config file", err)
+		logger.Fatal("Error while creating download directory", err)
 	}
 
-	configFileBytes, err := io.ReadAll(configFileHandle)
-	if err != nil {
-		log.Fatal("IO Error encountered while reading config file", err)
-	}
-	configFileHandle.Close()
-
-	appConfig := config.AppConfig{
-		TmpDownloadLocation: "/tmp/update-manager-download",
-	}
-	err = yaml.Unmarshal(configFileBytes, &appConfig)
-	if err != nil {
-		log.Fatal("Cannot parse config file.\n", err)
-	}
-
-	err = os.MkdirAll(appConfig.TmpDownloadLocation, 0775)
-	if err != nil {
-		log.Fatal("Error while creating download directory", err)
-	}
-
-	log.Printf("  === Starting app checks ===  ")
+	logger.Printf("  === Starting app checks ===  ")
 
 	var wg sync.WaitGroup
 
@@ -51,22 +32,34 @@ func main() {
 		go updateApplication(&app, &appConfig.TmpDownloadLocation, &wg)
 	}
 
-	startSystray, _ := systray.RunWithExternalLoop(systrayOnReady, func() {})
+	configureSystray := func() { systrayOnReady(appConfig.SystrayIcon) }
+	startSystray, _ := systray.RunWithExternalLoop(configureSystray, func() {})
 	startSystray()
 
 	wg.Wait()
-	time.Sleep(5 * time.Second)
-
+	logger.Println("App updates completed")
+	logger.Println("Removing temporary files")
 	os.RemoveAll(appConfig.TmpDownloadLocation)
 }
 
-func updateApplication(app *config.App, tmpPath *string, wg *sync.WaitGroup) {
-	manager.UpdateApplication(app, tmpPath)
+func updateApplication(appConfig *config.App, tmpDir *string, wg *sync.WaitGroup) {
+	logger := log.New(os.Stdout, fmt.Sprintf("app-manager-%s  ", appConfig.Name), log.Ldate|log.Ltime|log.Lmsgprefix)
+	notify := notificator.New(notificator.Options{
+		DefaultIcon: appConfig.Icon,
+		AppName:     "update-manager",
+	})
+	m := manager.New(appConfig, tmpDir, logger, notify)
+
+	shouldInstall := m.CheckVersion()
+	if shouldInstall {
+		m.DownloadApp()
+		m.InstallApp()
+	}
 	wg.Done()
 }
 
-func systrayOnReady() {
-	updateIcon, _ := os.Open("icons/update-dark.png")
+func systrayOnReady(icon string) {
+	updateIcon, _ := os.Open(icon)
 	updateIconBytes, _ := io.ReadAll(updateIcon)
 	systray.SetIcon(updateIconBytes)
 	updateIcon.Close()

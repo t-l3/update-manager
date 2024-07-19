@@ -3,6 +3,7 @@ package config
 type AppConfig struct {
 	Apps                []App  `yaml:"apps"`
 	TmpDownloadLocation string `yaml:"tmp-download-location" default:"/tmp/update-manager-download"`
+	SystrayIcon         string `yaml:"systray-icon" default:"/etc/update-manager/icons/update-manager.png"`
 }
 
 type App struct {
