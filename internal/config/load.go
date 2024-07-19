@@ -32,5 +32,9 @@ func LoadConfig() AppConfig {
 		log.Fatal("Cannot parse config file.\n", err)
 	}
 
+	if appConfig.TmpDownloadLocation == "/" {
+		log.Fatal("Cannot use '/' as tmp directory")
+	}
+
 	return appConfig
 }
