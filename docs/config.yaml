@@ -10,14 +10,15 @@ apps:
       mode: 700
     versioning-checks:
       installed: |-
-        jq -r '.version' /opt/discord/resources/build_info.json
+        jq -r '.version' /opt/discord/resources/build_info.json;
       latest: |-
         curl -s 'https://discord.com/api/download?platform=linux&format=tar.gz' | \
         grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | \
-        head -n 1
+        head -n 1;
     post-install-script: |-
       mv /opt/discord/Discord /opt/discord/tmp;
       mv /opt/discord/tmp/* /opt/discord/;
       rm -rf /opt/discord/tmp/;
-      chmod +x /opt/discord/Discord
-      sed -r 's/\/usr\/share\/discord/\/opt\/discord/g' /opt/discord/discord.desktop > /usr/share/applications/discord.desktop
+      chmod +x /opt/discord/Discord /opt/discord/chrome-sandbox /opt/discord/chrome_crashpad_handler;
+      sed -i -r 's/\/usr\/share\/discord/\/opt\/discord/g' /opt/discord/discord.desktop;
+      sudo cp /opt/discord/discord.app /usr/share/applications/Discord.desktop;
