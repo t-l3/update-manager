@@ -11,10 +11,14 @@ import (
 	"github.com/t-l3/update-manager/internal/config"
 	"github.com/t-l3/update-manager/internal/manager"
 
+	"github.com/t-l3/update-manager/internal/notifications"
+
 	"fyne.io/systray"
 )
 
 func main() {
+	notif := notifications.New("update-manager", "Started update-manager")
+
 	logger := log.New(os.Stdout, "app-manager-main  ", log.Ldate|log.Ltime|log.Lmsgprefix)
 	appConfig := config.LoadConfig()
 
@@ -40,6 +44,7 @@ func main() {
 	logger.Println("App updates completed")
 	logger.Println("Removing temporary files")
 	os.RemoveAll(appConfig.TmpDownloadLocation)
+	notif.Terminate("")
 }
 
 func updateApplication(appConfig *config.App, tmpDir *string, wg *sync.WaitGroup) {

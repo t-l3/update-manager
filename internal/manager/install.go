@@ -14,6 +14,10 @@ func (m *Manager) InstallApp() {
 	m.logger.Printf("Removing existing install (%s)\n", m.app.InstallDir.Path)
 	os.RemoveAll(m.app.InstallDir.Path)
 
+	if len(m.app.PreInstallScript) > 0 {
+		exec.Command("/usr/bin/bash", "-c", m.app.PreInstallScript).Start()
+	}
+
 	m.logger.Printf("Moving extracted files from %s to %s\n", *m.extractPath, m.app.InstallDir.Path)
 	err := os.Rename(*m.extractPath, m.app.InstallDir.Path)
 	if err != nil {
