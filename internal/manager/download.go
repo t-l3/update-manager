@@ -35,7 +35,7 @@ func (m *Manager) DownloadApp() {
 		for {
 			n, err := io.ReadFull(res.Body, buffer)
 
-			if err != nil && err != io.EOF {
+			if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF { // TODO handle EOF properly
 				m.logger.Printf("Failed to download %s", m.app.Name)
 				notif.Terminate(fmt.Sprintf("Download of %s failed", m.app.Name))
 				return
