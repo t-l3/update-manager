@@ -57,7 +57,11 @@ func updateApplication(appConfig *config.App, tmpDir *string, wg *sync.WaitGroup
 
 	shouldInstall := m.CheckVersion()
 	if shouldInstall {
-		m.DownloadApp()
+		err := m.DownloadApp()
+		if err != nil {
+			logger.Printf("Download of %s failed", appConfig.Name)
+			return
+		}
 		m.InstallApp()
 	}
 	wg.Done()

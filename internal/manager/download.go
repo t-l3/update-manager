@@ -9,7 +9,7 @@ import (
 	"github.com/t-l3/update-manager/internal/notifications"
 )
 
-func (m *Manager) DownloadApp() {
+func (m *Manager) DownloadApp() error {
 	downloadPath := fmt.Sprintf("%s/%s", *m.tmpDir, m.app.Name)
 
 	_, err := os.Open(downloadPath)
@@ -23,7 +23,7 @@ func (m *Manager) DownloadApp() {
 		if err != nil {
 			m.logger.Printf("Failed to download %s", m.app.Name)
 			notif.Terminate(fmt.Sprintf("Download of %s failed", m.app.Name))
-			return
+			return err
 		}
 
 		total := res.ContentLength
@@ -38,7 +38,7 @@ func (m *Manager) DownloadApp() {
 			if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF { // TODO handle EOF properly
 				m.logger.Printf("Failed to download %s", m.app.Name)
 				notif.Terminate(fmt.Sprintf("Download of %s failed", m.app.Name))
-				return
+				return err
 			}
 			if n == 0 {
 				break
@@ -56,4 +56,5 @@ func (m *Manager) DownloadApp() {
 	} else {
 		m.logger.Printf("Download already present, reusing existing download for %s", m.app.Name) // TODO Add file size check to confirm presence of data
 	}
+	return nil
 }
