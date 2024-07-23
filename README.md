@@ -6,7 +6,9 @@ For example, I use it for Discord, VS Code and Google Chrome which aren't availa
 
 update-manager will check the locally installed version against the remote latest available version, and initiate a download if there is a difference.
 
-![demo-img](docs/demo.png)
+![Still image demonstrating classic desktop notifications](docs/demo.png)
+
+![Animated image demonstrating app runtime, with progress bars in notifications](docs/demo.gif)
 
 ## Config
 

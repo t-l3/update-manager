@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/0xAX/notificator"
 	"github.com/t-l3/update-manager/internal/config"
@@ -45,6 +46,7 @@ func main() {
 	logger.Println("Removing temporary files")
 	os.RemoveAll(appConfig.TmpDownloadLocation)
 	notif.Terminate("")
+	time.Sleep(20 * time.Millisecond) // Sleep to allow notification to terminate gracefully
 }
 
 func updateApplication(appConfig *config.App, tmpDir *string, wg *sync.WaitGroup) {
