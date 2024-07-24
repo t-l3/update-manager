@@ -28,13 +28,13 @@ func New(msg string, icon string) notification {
 }
 
 func (n *notification) SetPercent(percent int) {
-	<-n.conn.Object("org.freedesktop.Notifications", dbus.ObjectPath(*n.path)).Call("org.kde.JobViewV2.setPercent", 1, uint32(percent)).Done
+	<-n.conn.Object("org.freedesktop.Notifications", dbus.ObjectPath(*n.path)).Call("setPercent", 1, uint32(percent)).Done
 }
 
 func (n *notification) SetInfoMessage(msg string) {
-	<-n.conn.Object("org.freedesktop.Notifications", dbus.ObjectPath(*n.path)).Call("org.kde.JobViewV2.setInfoMessage", 1, msg).Done
+	<-n.conn.Object("org.freedesktop.Notifications", dbus.ObjectPath(*n.path)).Call("setInfoMessage", 1, msg).Done
 }
 
 func (n *notification) Terminate(msg string) {
-	<-n.conn.Object("org.freedesktop.Notifications", dbus.ObjectPath(*n.path)).Call("org.kde.JobViewV2.terminate", 1, msg).Done
+	<-n.conn.Object("org.freedesktop.Notifications", dbus.ObjectPath(*n.path)).Call("terminate", 1, msg).Done
 }
