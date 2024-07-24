@@ -18,7 +18,6 @@ import (
 )
 
 func main() {
-	notif := notifications.New("update-manager", "Started update-manager")
 
 	logger := log.New(os.Stdout, "app-manager-main  ", log.Ldate|log.Ltime|log.Lmsgprefix)
 	appConfig := config.LoadConfig()
@@ -27,6 +26,7 @@ func main() {
 	if err != nil {
 		logger.Fatal("Error while creating download directory", err)
 	}
+	notif := notifications.New("update-manager", appConfig.SystrayIcon)
 
 	logger.Printf("  === Starting app checks ===  ")
 
