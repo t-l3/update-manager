@@ -10,6 +10,7 @@ type App struct {
 	Name              string           `yaml:"name"`
 	Icon              string           `yaml:"icon"`
 	DownloadUrl       string           `yaml:"download-url"`
+	RetainDownload    bool             `yaml:"retain-download" default:"false"`
 	InstallDir        InstallDir       `yaml:"install-dir"`
 	VersioningChecks  VersioningChecks `yaml:"versioning-checks"`
 	PreInstallScript  string           `yaml:"pre-install-script"`

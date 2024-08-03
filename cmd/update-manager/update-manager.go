@@ -6,10 +6,13 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/0xAX/notificator"
 	"github.com/t-l3/update-manager/internal/config"
 	"github.com/t-l3/update-manager/internal/manager"
+
+	"github.com/t-l3/update-manager/internal/notifications"
 
 	"fyne.io/systray"
 )
@@ -22,6 +25,7 @@ func main() {
 	if err != nil {
 		logger.Fatal("Error while creating download directory", err)
 	}
+	notif := notifications.New("update-manager", appConfig.SystrayIcon)
 
 	logger.Printf("  === Starting app checks ===  ")
 
@@ -38,8 +42,22 @@ func main() {
 
 	wg.Wait()
 	logger.Println("App updates completed")
-	logger.Println("Removing temporary files")
-	os.RemoveAll(appConfig.TmpDownloadLocation)
+
+	removeTmp := true
+
+	for _, app := range appConfig.Apps {
+		if app.RetainDownload {
+			removeTmp = false
+		}
+	}
+
+	if removeTmp {
+		logger.Println("Removing temporary files")
+		os.RemoveAll(appConfig.TmpDownloadLocation)
+	}
+
+	notif.Terminate("")
+	time.Sleep(20 * time.Millisecond) // Sleep to allow notification to terminate gracefully
 }
 
 func updateApplication(appConfig *config.App, tmpDir *string, wg *sync.WaitGroup) {
@@ -52,7 +70,11 @@ func updateApplication(appConfig *config.App, tmpDir *string, wg *sync.WaitGroup
 
 	shouldInstall := m.CheckVersion()
 	if shouldInstall {
-		m.DownloadApp()
+		err := m.DownloadApp()
+		if err != nil {
+			logger.Printf("Download of %s failed", appConfig.Name)
+			return
+		}
 		m.InstallApp()
 	}
 	wg.Done()

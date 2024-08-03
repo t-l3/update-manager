@@ -6,7 +6,9 @@ For example, I use it for Discord, VS Code and Google Chrome which aren't availa
 
 update-manager will check the locally installed version against the remote latest available version, and initiate a download if there is a difference.
 
-![demo-img](docs/demo.png)
+![Still image demonstrating classic desktop notifications](docs/demo.png)
+
+![Animated image demonstrating app runtime, with progress bars in notifications](docs/demo.gif)
 
 ## Config
 
@@ -28,6 +30,7 @@ apps:
   - name: [string] A display name for the app, for use in logs
     icon: [string] Path to an image file to use as icon for this app in desktop notifications
     download-url: [string] URL to download the latest release of the application
+    retain-download: [bool] Whether to retain the download, preventing cleanup after application runs (For debugging or cache for reinstalling)
     install-dir:
       path: [string] File path to install app to locally
       owner: [string] Linux file owner string for top level install directory and sub-files (i.e root or root:root)
