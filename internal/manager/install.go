@@ -28,7 +28,9 @@ func (m *Manager) InstallApp() {
 			m.logger.Printf("Failed to copy from %s to %s", *m.extractPath, m.app.InstallDir.Path)
 		}
 		os.RemoveAll(*m.extractPath)
-		os.RemoveAll(*m.downloadPath)
+		if !m.app.RetainDownload {
+			os.RemoveAll(*m.downloadPath)
+		}
 	}
 
 	if len(m.app.PostInstallScript) > 0 {

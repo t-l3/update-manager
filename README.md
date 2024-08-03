@@ -30,6 +30,7 @@ apps:
   - name: [string] A display name for the app, for use in logs
     icon: [string] Path to an image file to use as icon for this app in desktop notifications
     download-url: [string] URL to download the latest release of the application
+    retain-download: [bool] Whether to retain the download, preventing cleanup after application runs (For debugging or cache for reinstalling)
     install-dir:
       path: [string] File path to install app to locally
       owner: [string] Linux file owner string for top level install directory and sub-files (i.e root or root:root)

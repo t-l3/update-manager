@@ -18,7 +18,6 @@ import (
 )
 
 func main() {
-
 	logger := log.New(os.Stdout, "app-manager-main  ", log.Ldate|log.Ltime|log.Lmsgprefix)
 	appConfig := config.LoadConfig()
 
@@ -43,8 +42,20 @@ func main() {
 
 	wg.Wait()
 	logger.Println("App updates completed")
-	logger.Println("Removing temporary files")
-	os.RemoveAll(appConfig.TmpDownloadLocation)
+
+	removeTmp := true
+
+	for _, app := range appConfig.Apps {
+		if app.RetainDownload {
+			removeTmp = false
+		}
+	}
+
+	if removeTmp {
+		logger.Println("Removing temporary files")
+		os.RemoveAll(appConfig.TmpDownloadLocation)
+	}
+
 	notif.Terminate("")
 	time.Sleep(20 * time.Millisecond) // Sleep to allow notification to terminate gracefully
 }

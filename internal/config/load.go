@@ -11,6 +11,7 @@ import (
 
 func LoadConfig() AppConfig {
 	configFile := flag.String("config", "/etc/update-manager/config.yaml", "relative or absolute file path to update-manager's config")
+	flag.Parse()
 
 	configFileHandle, err := os.Open(*configFile)
 	if err != nil {
