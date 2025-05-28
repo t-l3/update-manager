@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/h2non/filetype"
+	"github.com/sassoftware/go-rpmutils"
 	"github.com/t-l3/update-manager/internal/notifications"
 )
 
@@ -19,6 +20,8 @@ func (m *Manager) Extract(in string, out string) error {
 	var err error
 
 	switch kind { // TODO add zip, 7z, rpm and deb extraction
+	case "application/x-rpm":
+		m.ExtractRpm(in, out)
 	case "application/gzip":
 		err = m.ExtractGzip(in, out)
 	case "application/x-tar":
@@ -33,6 +36,29 @@ func DetectFiletype(path string) string {
 	bytes, _ := os.ReadFile(path)
 	kind, _ := filetype.Match(bytes)
 	return kind.MIME.Value
+}
+
+func (m *Manager) ExtractRpm(in string, out string) error {
+	m.logger.Println("Extracting rpm...")
+	file, _ := os.Open(in)
+
+	notif := notifications.New("msg", m.app.Icon)
+	notif.SetInfoMessage(fmt.Sprintf("Extracting %s (rpm)", m.app.Name))
+
+	rpm, err := rpmutils.ReadRpm(file)
+	if err != nil {
+		m.logger.Printf("Failed to oppen file %s", in)
+		notif.Terminate(fmt.Sprintf("Extraction of %s failed", m.app.Name))
+		return err
+	}
+
+	if err := rpm.ExpandPayload(out); err != nil {
+		m.logger.Printf("Failed to extract rpm for %s", m.app.Name)
+		notif.Terminate(fmt.Sprintf("Extraction of %s failed", m.app.Name))
+		return err
+	}
+	notif.Terminate(fmt.Sprintf("%s (rpm) extracted successfully", m.app.Name))
+	return err
 }
 
 func (m *Manager) ExtractGzip(in string, out string) error {
